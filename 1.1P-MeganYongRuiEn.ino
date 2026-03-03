@@ -35,7 +35,7 @@ void dot() {
 
 void dash() {
   digitalWrite(ledPin, HIGH); // blink ON
-  delay(1000);
+  delay(750);
   digitalWrite(ledPin, LOW); // blink OFF
   delay(250);
 }
@@ -46,4 +46,5 @@ void wordSpace() {
 
 void letterSpace() {
   delay(750); // gap between letters
+
 }
