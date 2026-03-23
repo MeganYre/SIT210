@@ -43,7 +43,7 @@ void loop() {
     triggerIFTTT("stopped");
   }
 
-  delay(10000);
+  delay(30000);
 }
 
 void triggerIFTTT(const char* state) {
