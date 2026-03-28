@@ -24,8 +24,8 @@ long duration;
 int distance;
 
 // Gesture thresholds
-const int patThreshold = 5;    // cm, very close tap → OFF
-const int waveThreshold = 20;  // cm, hand wave → ON
+const int patThreshold = 5;  
+const int waveThreshold = 20;  
 
 // Measure distance
 int readDistance() {
