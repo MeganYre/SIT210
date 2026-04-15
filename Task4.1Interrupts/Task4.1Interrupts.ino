@@ -6,14 +6,27 @@ const int switch_pin = 2;
 const int PIR_pin = 6;
 const int lightSensor = A0;
 
-volatile bool switchTriggered = false;
+// Tune this value for your MH analog light module.
+const int darkThreshold = 100;
+
+volatile bool switchEvent = false;
+volatile bool pirEvent = false;
+
+bool switchOn = false;
+bool motionDetected = false;
+bool lightsOn = false;
 
 void Switch_ISR() {
-  if (digitalRead(switch_pin) == HIGH) {
-    switchTriggered = true;
-  } else {
-    switchTriggered = false;
-  }
+  switchEvent = true;
+}
+
+void PIR_ISR() {
+  pirEvent = true;
+}
+
+void applyLights(bool on) {
+  digitalWrite(led1, on ? HIGH : LOW);
+  digitalWrite(led2, on ? HIGH : LOW);
 }
 
 void setup() {
@@ -21,33 +34,45 @@ void setup() {
   pinMode(led2, OUTPUT);
   pinMode(switch_pin, INPUT);
   pinMode(PIR_pin, INPUT);
+  pinMode(lightSensor, INPUT);
 
   Serial.begin(9600);
 
   attachInterrupt(digitalPinToInterrupt(switch_pin), Switch_ISR, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(PIR_pin), PIR_ISR, CHANGE);
 }
 
 void loop() {
   int sensorRead = analogRead(lightSensor);
-  int val = digitalRead(PIR_pin);
-  
-  if (val == HIGH)
-  {
-   	Serial.print("Motion Detected!");
+  bool handleSwitch;
+  bool handlePir;
+
+  noInterrupts();
+  handleSwitch = switchEvent;
+  handlePir = pirEvent;
+  switchEvent = false;
+  pirEvent = false;
+  interrupts();
+
+  // Slider switch state is updated only when its interrupt fires.
+  if (handleSwitch) {
+    switchOn = (digitalRead(switch_pin) == HIGH);
+    Serial.println(switchOn ? "Switch interrupt: ON" : "Switch interrupt: OFF");
   }
 
-  if (switchTriggered || (sensorRead <= 100 && val)) 
-  {
-    digitalWrite(led1, HIGH);
-    digitalWrite(led2, HIGH);
-    Serial.println("Lights ON");
-  } 
-  else 
-  {
-    digitalWrite(led1, LOW);
-    digitalWrite(led2, LOW);
-    Serial.println("Lights OFF");
+  // PIR motion state is updated only when its interrupt fires.
+  if (handlePir) {
+    motionDetected = (digitalRead(PIR_pin) == HIGH);
+    Serial.println(motionDetected ? "PIR interrupt: Motion detected" : "PIR interrupt: Motion cleared");
   }
 
-  delay(2000);
+  bool isDark = (sensorRead <= darkThreshold);
+  bool shouldLightsBeOn = switchOn || (isDark && motionDetected);
+
+  if (shouldLightsBeOn != lightsOn) {
+    lightsOn = shouldLightsBeOn;
+    applyLights(lightsOn);
+    Serial.println(lightsOn ? "Lights ON" : "Lights OFF");
+  }
+  delay(50);
 }
