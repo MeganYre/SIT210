@@ -2,8 +2,9 @@
 
 const int led1 = 10;
 const int led2 = 9;
-const int switch_pin = 2;
-const int PIR_pin = 6;
+// Use hardware interrupt-capable pins (Uno/Nano: 2 and 3).
+const int switch_pin = 3;
+const int PIR_pin = 2;
 const int lightSensor = A0;
 
 // Tune this value for your MH analog light module.
@@ -40,6 +41,10 @@ void setup() {
 
   attachInterrupt(digitalPinToInterrupt(switch_pin), Switch_ISR, CHANGE);
   attachInterrupt(digitalPinToInterrupt(PIR_pin), PIR_ISR, CHANGE);
+
+  // Initialize states once so behavior is correct before first interrupt.
+  switchOn = (digitalRead(switch_pin) == HIGH);
+  motionDetected = (digitalRead(PIR_pin) == HIGH);
 }
 
 void loop() {
