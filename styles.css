@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SIT210 — Vitals dashboard</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="preconnect" href="https://api.thingspeak.com" />
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <div class="header__text">
+        <h1 class="title">Vitals monitor</h1>
+        <p class="subtitle">ThingSpeak channel · Field 1 = BPM · Field 2 = SpO₂ (%)</p>
+      </div>
+      <div class="header__status" id="statusPill" data-state="idle">Loading…</div>
+    </header>
+
+    <section class="metrics" aria-live="polite">
+      <article class="metric" id="cardBpm">
+        <span class="metric__label">Heart rate</span>
+        <span class="metric__value" id="valueBpm">—</span>
+        <span class="metric__unit">BPM</span>
+      </article>
+      <article class="metric" id="cardSpo2">
+        <span class="metric__label">Blood oxygen</span>
+        <span class="metric__value" id="valueSpo2">—</span>
+        <span class="metric__unit">SpO₂ %</span>
+      </article>
+    </section>
+
+    <section class="panel">
+      <h2 class="panel__title">Recent trend</h2>
+      <p class="meta" id="lastUpdated">No data yet.</p>
+      <div class="chart-wrap">
+        <canvas id="trendCanvas" width="800" height="220" aria-label="BPM and SpO2 trend chart"></canvas>
+      </div>
+    </section>
+  </div>
+
+  <script src="thingspeak_config.js"></script>
+  <script src="js/app.js" defer></script>
+</body>
+</html>
